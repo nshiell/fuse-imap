@@ -6,12 +6,16 @@ import os
 import sys
 import errno
 
-from fusepy. import FUSE, FuseOSError, Operations
+from fusepy.fuse import FUSE, FuseOSError, Operations
+import imap
 
+from pprint import pprint
 
 class Passthrough(Operations):
-    def __init__(self, root):
+    emails = None
+    def __init__(self, root, emails):
         self.root = root
+        self.emails = emails
 
     # Helpers
     # =======
@@ -45,9 +49,13 @@ class Passthrough(Operations):
                      'st_gid', 'st_mode', 'st_mtime', 'st_nlink', 'st_size', 'st_uid'))
 
     def readdir(self, path, fh):
+        #imap.get_inbox_listing()
         full_path = self._full_path(path)
 
         dirents = ['.', '..']
+
+        dirents.extend(self.emails.keys())
+
         if os.path.isdir(full_path):
             dirents.extend(os.listdir(full_path))
         for r in dirents:
@@ -128,7 +136,8 @@ class Passthrough(Operations):
 
 
 def main(mountpoint, root):
-    FUSE(Passthrough(root), mountpoint, nothreads=True, foreground=True)
+    emails = imap.get_inbox_listing()
+    FUSE(Passthrough(root, emails), mountpoint, nothreads=True, foreground=True)
 
 if __name__ == '__main__':
     main(sys.argv[2], sys.argv[1])
