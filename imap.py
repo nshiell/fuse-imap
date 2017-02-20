@@ -16,11 +16,11 @@ import datetime
 import json
 from pprint import pprint
 
-with open('config.json') as json_data:
-    d = json.load(json_data)
-    EMAIL_ACCOUNT = d['email_address']
-    SERVER_ADDRESS = d['server_address']
-    PASSWORD = d['password'] or getpass.getpass()
+#with open('config.json') as json_data:
+#    d = json.load(json_data)
+#    EMAIL_ACCOUNT = d['email_address']
+#    SERVER_ADDRESS = d['server_address']
+#    PASSWORD = d['password'] or getpass.getpass()
 
 #EMAIL_FOLDER = "INBOX"
 EMAIL_FOLDER = "INBOX.Archives.2013"
@@ -68,6 +68,7 @@ def process_mailbox(M):
                 plain_text = part.get_payload(decode=True)
 
         emails[num] = {
+            'from'      : msg['from'],
             'subject'   : subject,
             'date'      : local_date,
             'plain_text': plain_text
@@ -86,11 +87,11 @@ def process_mailbox(M):
                 local_date.strftime("%a, %d %b %Y %H:%M:%S")
     return emails
 
-def get_inbox_listing():
-    M = imaplib.IMAP4_SSL(SERVER_ADDRESS)
+def get_inbox_listing(config):
+    M = imaplib.IMAP4_SSL(config.server_address)
 
     try:
-        rv, data = M.login(EMAIL_ACCOUNT, PASSWORD)
+        rv, data = M.login(config.email_address, config.password)
     except imaplib.IMAP4.error:
         print "LOGIN FAILED!!! "
         sys.exit(1)
