@@ -14,17 +14,10 @@ import email.header
 import datetime
 
 import json
-from pprint import pprint
-
-#with open('config.json') as json_data:
-#    d = json.load(json_data)
-#    EMAIL_ACCOUNT = d['email_address']
-#    SERVER_ADDRESS = d['server_address']
-#    PASSWORD = d['password'] or getpass.getpass()
 
 #EMAIL_FOLDER = "INBOX"
 EMAIL_FOLDER = "INBOX.Archives.2013"
-from pprint import pprint
+
 def process_mailbox(M):
     """
     Do something with emails messages in the folder.
@@ -33,7 +26,7 @@ def process_mailbox(M):
 
     rv, data = M.search(None, "ALL")
     if rv != 'OK':
-        print "No messages found!"
+        print("No messages found!")
         return
 
     numbers = data[0].split()
@@ -43,12 +36,12 @@ def process_mailbox(M):
     seen = 0
     emails = {}
     for num in numbers:
-        print '{0:.2f}%'.format((seen / total_float) * 100)
+        print('{0:.2f}%'.format((seen / total_float) * 100))
         seen = seen + 1;
         #rv, data = M.fetch(num, '(RFC822)')
         rv, data = M.fetch(num, '(BODY.PEEK[])')
         if rv != 'OK':
-            print "ERROR getting message", num
+            print("ERROR getting message", num)
             return
 
         msg = email.message_from_string(data[0][1])
@@ -84,17 +77,6 @@ def process_mailbox(M):
             'plain_text' : plain_text
         }
 
-        continue
-
-        print 'Message %s: %s' % (num, subject)
-        print 'Raw Date:', msg['Date']
-        # Now convert to local date-time
-        date_tuple = email.utils.parsedate_tz(msg['Date'])
-        if date_tuple:
-            local_date = datetime.datetime.fromtimestamp(
-                email.utils.mktime_tz(date_tuple))
-            print "Local Date:", \
-                local_date.strftime("%a, %d %b %Y %H:%M:%S")
     return emails
 
 def get_inbox_listing(config):
@@ -103,10 +85,10 @@ def get_inbox_listing(config):
     try:
         rv, data = M.login(config.email_address, config.password)
     except imaplib.IMAP4.error:
-        print "LOGIN FAILED!!! "
+        print('LOGIN FAILED!')
         sys.exit(1)
 
-    print rv, data
+    print(rv, data)
 
     rv, mailboxes = M.list()
     #if rv == 'OK':
@@ -115,11 +97,11 @@ def get_inbox_listing(config):
 
     rv, data = M.select(EMAIL_FOLDER)
     if rv == 'OK':
-        print "Processing mailbox...\n"
+        print('Processing mailbox...\n')
         emails = process_mailbox(M)
         M.close()
     else:
-        print "ERROR: Unable to open mailbox ", rv
+        print("ERROR: Unable to open mailbox ", rv)
 
     M.logout()
     return emails

@@ -28,6 +28,6 @@ def load():
 
 if __name__ == '__main__':
     config = load()
-    print 'Email Address  :', config.email_address
-    print 'Server Address :', config.server_address
-    print 'Password       :', config.password
+    print('Email Address  :', config.email_address)
+    print('Server Address :', config.server_address)
+    print('Password       :', config.password)

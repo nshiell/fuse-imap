@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 from __future__ import with_statement
 
@@ -9,8 +9,7 @@ import errno
 from fusepy.fuse import FUSE, FuseOSError, Operations
 import imap
 import config
-
-from pprint import pprint
+import json
 
 class Imap(Operations):
     emails = None
@@ -104,7 +103,6 @@ class Imap(Operations):
             dir_no = path.split('/')[-1]
 
             if '/' + self.account_config.email_address + '/' + self._EMAIL_DIR != path:
-                pprint(dir_no)
                 dirents.append('plain-text.txt')
                 dirents.append('metadata.txt')
             else:
@@ -151,7 +149,16 @@ class Imap(Operations):
         if 'plain-text.txt' in path:
             dir_no = path.split('/')[3].split('/')[-1]
             return self.emails[dir_no]['plain_text']
-        
+
+        if 'metadata.txt' in path:
+            dir_no = path.split('/')[3].split('/')[-1]
+
+            return 'from : ' + self.emails[dir_no]['from'] + '\n' + \
+                'subject : ' + self.emails[dir_no]['subject'] + '\n' + \
+                'sent : ' + self.emails[dir_no]['date'].strftime(
+                    '%Y-%m-%d/%Y %H:%M:%S'
+                )
+
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, length)
 
