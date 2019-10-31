@@ -24,7 +24,7 @@ from pprint import pprint
 
 #EMAIL_FOLDER = "INBOX"
 EMAIL_FOLDER = "INBOX.Archives.2013"
-
+from pprint import pprint
 def process_mailbox(M):
     """
     Do something with emails messages in the folder.
@@ -52,6 +52,7 @@ def process_mailbox(M):
             return
 
         msg = email.message_from_string(data[0][1])
+
         decode = email.header.decode_header(msg['Subject'])[0]
         #subject = unicode(decode[0])
         subject = decode[0]
@@ -64,14 +65,23 @@ def process_mailbox(M):
 
         plain_text = None
         for part in msg.walk():
+            print(part.get_content_type())
             if part.get_content_type() == "text/plain":
                 plain_text = part.get_payload(decode=True)
 
+        from_email = msg['from']
+        if '<' in from_email:
+            from_email = from_email.split('<')[1]
+        if '>' in from_email:
+            from_email = from_email.split('>')[0]
+
         emails[num] = {
-            'from'      : msg['from'],
-            'subject'   : subject,
-            'date'      : local_date,
-            'plain_text': plain_text
+            #'id'        : msg['Message-ID'],
+            'from'       : msg['from'],
+            'from_email' : from_email,
+            'subject'    : subject,
+            'date'       : local_date,
+            'plain_text' : plain_text
         }
 
         continue
